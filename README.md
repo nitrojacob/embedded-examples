@@ -1,2 +1,2 @@
 # embedded-examples
-Example programs to get newbies up-to speed in embedded system programming.
+Example projects to get newbies up-to speed in embedded system programming.
