@@ -7,6 +7,8 @@
 #include <fcntl.h>
 #include <mqueue.h>
 
+#include <errno.h>
+#include <error.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -22,10 +24,8 @@ int main(void)
     int i;
 
     mqd = mq_open(MQ_NAME, O_WRONLY, 0666, NULL);
-    if(mqd == -1){
-        printf("Error opening message queue\n");
-        return 0;
-    }
+    if(mqd == -1)
+        error(-1, errno, "mq_open");
 
     for(i=0; i<10; i++){
         sprintf(buffer, "Message #%d from client", i);

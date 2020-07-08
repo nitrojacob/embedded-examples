@@ -7,10 +7,12 @@
 #include <fcntl.h>
 #include <mqueue.h>
 
+#include <errno.h>
+#include <error.h>
 #include <stdio.h>
 
 #define MQ_NAME "/mqueue"
-#define MSG_LEN 8192
+#define MSG_LEN 256
 
 struct mq_attr myMQAttr = {
     .mq_maxmsg = 10,
@@ -22,17 +24,14 @@ void process1(void)
     mqd_t mqd;
     ssize_t len;
     char buffer[MSG_LEN];
-    mqd = mq_open(MQ_NAME, O_CREAT|O_RDONLY, 0666, myMQAttr);
-    if(mqd == -1){
-        printf("Process1: Error opening message queue\n");
-        return;
-    }
+    mqd = mq_open(MQ_NAME, O_CREAT|O_RDONLY, 0666, &myMQAttr);
+    if(mqd == -1)
+        error(-1, errno, "Process1: mq_open");
 
     while(1){
         len = mq_receive(mqd, buffer, MSG_LEN, NULL);
-        if(len == -1){
-            printf("Process1: Receive error\n");
-        }
+        if(len == -1)
+            error(-1, errno, "Process1: mq_receive");
         
         printf("Process1: Received Message - %s\n", buffer);
         sleep(1);
@@ -46,18 +45,15 @@ void process2(void)
     mqd_t mqd;
     ssize_t len;
     char buffer[MSG_LEN];
-    mqd = mq_open(MQ_NAME, O_CREAT|O_RDONLY, 0666, myMQAttr);
-    if(mqd == -1){
-        printf("Process2: Error opening message queue\n");
-        return;
-    }
+    mqd = mq_open(MQ_NAME, O_CREAT|O_RDONLY, 0666, &myMQAttr);
+    if(mqd == -1)
+        error(-1, errno, "Process2: mq_open");
 
     while(1){
         len = mq_receive(mqd, buffer, MSG_LEN, NULL);
-        if(len == -1){
-            printf("Process2: Receive error\n");
-            return;
-        }
+        if(len == -1)
+            error(-1, errno, "Process2: mq_receive");
+
         printf("Process2: Received Message - %s\n", buffer);
         sleep(2);
     }
